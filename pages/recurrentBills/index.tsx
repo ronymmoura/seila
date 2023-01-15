@@ -25,6 +25,7 @@ const RecurrentBills: NextPage = () => {
   const handleDelete = async (bill: RecurrentBill) => {
     if (confirm('Deseja realmente deletar este registro?')) {
       await api<any>(`/api/recurrentBill/${bill.id}`, 'DELETE');
+      await loadBills();
     }
   };
 
@@ -60,13 +61,10 @@ const RecurrentBills: NextPage = () => {
           {RecurrentBills && (
             <>
               R${' '}
-              {RecurrentBills.reduce((sum, current) => sum + +current.value, 0).toLocaleString(
-                'pt-br',
-                {
-                  maximumFractionDigits: 2,
-                  minimumFractionDigits: 2
-                }
-              )}
+              {RecurrentBills.reduce((sum, current) => sum + +current.value, 0).toLocaleString('pt-br', {
+                maximumFractionDigits: 2,
+                minimumFractionDigits: 2
+              })}
             </>
           )}
         </h1>
@@ -108,13 +106,7 @@ const RecurrentBills: NextPage = () => {
         ))}
       </section>
 
-      {EditBill && (
-        <NewRecurrentBillModal
-          bill={EditBill}
-          onSave={handleSaveNewBill}
-          onCancel={() => setEditBill(null)}
-        />
-      )}
+      {EditBill && <NewRecurrentBillModal bill={EditBill} onSave={handleSaveNewBill} onCancel={() => setEditBill(null)} />}
     </Page>
   );
 };

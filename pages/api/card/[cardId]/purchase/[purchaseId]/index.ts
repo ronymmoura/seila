@@ -1,11 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import {
-  createPurchase,
-  deletePurchase,
-  editPurchase,
-  getPurchasesByCardId
-} from '../../../../../lib/purchase';
-import { getUserId } from '../../../jwtMiddleware';
+import { createPurchase, deletePurchase, editPurchase, getPurchasesByCardId } from '../../../../../../lib/purchase';
+import { getUserId } from '../../../../jwtMiddleware';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -13,16 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const { method } = req;
     const { purchaseId } = req.query;
-    const {
-      cardId,
-      description,
-      date,
-      value,
-      categoryId,
-      installmentValue,
-      numberOfInstallments,
-      paidInstallments
-    } = req.body;
+    const { cardId, description, date, value, categoryId, installmentValue, numberOfInstallments, paidInstallments } = req.body;
 
     switch (method) {
       case 'PUT':

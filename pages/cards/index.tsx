@@ -1,23 +1,25 @@
-import { Card, Prisma, Purchase } from '@prisma/client';
+import { Card, Installment, Prisma, Purchase } from '@prisma/client';
 import { format } from 'date-fns';
 import { NextPage } from 'next';
 import React, { useEffect, useState } from 'react';
 import { api } from '@helpers';
-import { NewCardModal, Page } from '@components';
+import { Money, NewCardModal, Page } from '@components';
 import { Button } from '@kamalion/ui';
-import { FaCalendar, FaDollarSign, FaPencilAlt, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaCalendar, FaChevronRight, FaDollarSign, FaPencilAlt, FaPlus, FaTrash } from 'react-icons/fa';
 import { CardPurchaseModal } from '@components';
 
 const Cards: NextPage = () => {
-  const [Cards, setCards] = useState<Card[]>();
+  const [Cards, setCards] = useState<Card[]>([]);
   const [Purchases, setPurchases] = useState<Purchase[]>();
 
   const [NewCardModalVisible, setNewCardModalVisible] = useState(false);
-  const [SelectedCard, setSelectedCard] = useState<Card>();
+  const [SelectedCardId, setSelectedCardId] = useState<number>(null);
 
   const [PurchaseInInstallments, setPurchaseInInstallments] = useState(false);
 
-  const [SelectedPurchase, setSelectedPurchase] = useState<Purchase>();
+  const [SelectedPurchase, setSelectedPurchase] = useState<Purchase & { installments: Installment[] }>();
+
+  const SelectedCard = Cards.filter((x) => x.id === SelectedCardId)[0];
 
   useEffect(() => {
     (async () => {
@@ -34,17 +36,15 @@ const Cards: NextPage = () => {
   }, [SelectedCard]);
 
   const loadCards = async (cardId?: number) => {
+    setSelectedCardId(null);
+
     const cards = await api<Card[]>('/api/card', 'GET');
 
     if (cards) {
       setCards(cards);
+
       if (cards.length > 0) {
-        if (cardId) {
-          var card = cards.filter((x) => x.id === cardId)[0];
-          setSelectedCard(card);
-        } else {
-          setSelectedCard(cards[0]);
-        }
+        cardId ? setSelectedCardId(cardId) : setSelectedCardId(cards[0].id);
       }
     }
   };
@@ -57,7 +57,7 @@ const Cards: NextPage = () => {
   };
 
   const handleToggleSelectCard = (card: Card) => {
-    setSelectedCard(card);
+    setSelectedCardId(card.id);
   };
 
   const handleNewCard = () => {
@@ -73,12 +73,12 @@ const Cards: NextPage = () => {
     setNewCardModalVisible(false);
   };
 
-  const handleEditPurchase = (purchase: Purchase) => {
+  const handleEditPurchase = (purchase: Purchase & { installments: Installment[] }) => {
     setSelectedPurchase(purchase);
   };
 
   const handleNewPurchase = () => {
-    const purchase: Purchase = {
+    const purchase: Purchase & { installments: Installment[] } = {
       id: 0,
       description: '',
       value: new Prisma.Decimal(0),
@@ -87,14 +87,18 @@ const Cards: NextPage = () => {
       paidInstallments: 0,
       installmentValue: new Prisma.Decimal(0),
       cardId: 0,
-      categoryId: 0
+      categoryId: 0,
+      installments: []
     };
     setSelectedPurchase(purchase);
   };
 
   const handleDeleteCard = async () => {
     if (SelectedCard) {
-      await api<any>(`/api/card/${SelectedCard.id}`, 'DELETE');
+      if (confirm('Deseja realmente deletar este cartão?')) {
+        await api<any>(`/api/card/${SelectedCard.id}`, 'DELETE');
+        await loadCards();
+      }
     }
   };
 
@@ -109,9 +113,11 @@ const Cards: NextPage = () => {
   };
 
   const handleDeletePurchase = async (purchase: Purchase) => {
-    await api<any>(`/api/card/${SelectedCard.id}/purchase/${purchase.id}`, 'DELETE');
-    await loadCards(SelectedCard.id);
-    await loadCardPurchases();
+    if (confirm('Deseja realmente deletar esta compra?')) {
+      await api<any>(`/api/card/${SelectedCard.id}/purchase/${purchase.id}`, 'DELETE');
+      await loadCards(SelectedCard.id);
+      await loadCardPurchases();
+    }
   };
 
   return (
@@ -127,17 +133,13 @@ const Cards: NextPage = () => {
               SelectedCard === card ? 'border-0 bg-sky-500 text-white' : 'bg-card cursor-pointer hover:bg-slate-200'
             } flex h-[150px] w-[300px] flex-col rounded-md border-2 border-slate-300 border-[color:var(--color-primary)] p-3 text-lg font-semibold transition `}
           >
-            <div className="h-full w-full">{card.number}</div>
+            <div className="h-full w-full">{card.name}</div>
 
             <div className="w-full flex-col justify-end">
               <div className="text-md font-thin">Próxima Fatura</div>
 
               <div className="text-3xl">
-                R${' '}
-                {(+card.monthTotal!).toLocaleString('pt-br', {
-                  maximumFractionDigits: 2,
-                  minimumFractionDigits: 2
-                })}
+                <Money value={+card.monthTotal!} />
               </div>
             </div>
           </div>
@@ -156,15 +158,15 @@ const Cards: NextPage = () => {
           <section className="my-5 flex flex-col space-y-2 rounded-md bg-slate-200 p-3 text-[#2E323B]">
             <div className="flex flex-row space-x-2">
               <Button onClick={handleNewPurchase} icon={<FaPlus />}>
-                Adicionar
+                Adicionar Compra
               </Button>
 
               <Button type="danger" onClick={handleDeleteCard} icon={<FaTrash />}>
-                Apagar
+                Apagar Cartão
               </Button>
             </div>
 
-            {Purchases?.map((purchase: Purchase) => (
+            {Purchases?.map((purchase: Purchase & { installments: Installment[] }) => (
               <div key={purchase.id}>
                 <div className="flex flex-row items-center space-x-2 rounded-md bg-slate-50 px-3 py-2">
                   <div className="w-full">{purchase.description}</div>
@@ -172,23 +174,20 @@ const Cards: NextPage = () => {
                   <div className="flex w-[200px] items-center justify-end">
                     {purchase.numberOfInstallments! > 0 && (
                       <>
-                        <div className="mr-2 font-semibold">Parcelas:</div> {purchase.paidInstallments}/{purchase.numberOfInstallments}
+                        <div className="mr-2 font-semibold">Parcelas:</div>{' '}
+                        {purchase.installments.reduce((sum, current) => sum + (current.isPaid && 1), 0)}/{purchase.numberOfInstallments}
                       </>
                     )}
                   </div>
 
                   <div className="flex w-[200px] items-center justify-end">
-                    <FaCalendar className="mr-1 h-5 w-5 text-green-500" />
+                    <FaCalendar className="mr-1 h-5 w-5 text-emerald-500" />
                     {format(new Date(purchase.date), 'dd/MM/yyyy')}
                   </div>
 
                   <div className="flex w-[200px] items-center justify-end">
                     <FaDollarSign className="mr-1 h-5 w-5 text-yellow-500" />
-                    R${' '}
-                    {(+purchase.installmentValue! > 0 ? +purchase.installmentValue! : +purchase.value).toLocaleString('pt-br', {
-                      maximumFractionDigits: 2,
-                      minimumFractionDigits: 2
-                    })}
+                    <Money value={+purchase.installmentValue! || +purchase.value} />
                   </div>
 
                   <div className="flex items-center justify-end">

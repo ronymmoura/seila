@@ -1,7 +1,7 @@
 import { prisma } from '../../db';
 
 export async function getPurchaseInstallments(purchaseId: number) {
-  const installments = await prisma.installment.findMany({ where: { purchaseId } });
+  const installments = await prisma.installment.findMany({ where: { purchaseId }, orderBy: { number: 'asc' } });
 
   return installments;
 }
@@ -24,4 +24,17 @@ export async function deleteInstallments(purchaseId: number) {
       purchaseId
     }
   });
+}
+
+export async function editInstallmentPaid(installmentId: number, isPaid: boolean) {
+  const installment = await prisma.installment.updateMany({
+    where: {
+      id: installmentId
+    },
+    data: {
+      isPaid: isPaid
+    }
+  });
+
+  return installment;
 }

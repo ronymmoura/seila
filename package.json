@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^1.0.6",
-    "@kamalion/ui": "^0.0.21",
+    "@kamalion/ui": "^0.0.22",
     "@prisma/client": "^3.14.0",
     "@unform/core": "^2.1.6",
     "@unform/web": "^2.1.6",

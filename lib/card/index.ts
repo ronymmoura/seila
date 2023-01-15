@@ -13,7 +13,7 @@ export async function getCards(userId: number) {
         let value = +current.value;
 
         if (current.installments.length > 0) {
-          value = current.installments.reduce((sum, current) => sum + (current.paymentDate <= new Date() ? +current.value : 0), 0);
+          value = current.installments.reduce((sum, current) => sum + (current.paymentDate <= new Date() && current.isPaid ? +current.value : 0), 0);
         }
 
         return sum + value;
@@ -55,4 +55,15 @@ export async function createCard(name: string, number: string, dueDate: Date, cl
       color
     }
   });
+}
+
+export async function deleteCard(userId: number, cardId: number) {
+  const purchases = await prisma.purchase.findMany({ where: { cardId, card: { id: cardId } } });
+
+  for (let purchase of purchases) {
+    await prisma.installment.deleteMany({ where: { purchaseId: purchase.id } });
+    await prisma.purchase.deleteMany({ where: { id: purchase.id } });
+  }
+
+  return await prisma.card.deleteMany({ where: { id: cardId, userId } });
 }

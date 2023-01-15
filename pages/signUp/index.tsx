@@ -33,25 +33,9 @@ const LoginPage: NextPage = () => {
       <div className="relative flex h-screen flex-col items-center">
         <div className="bg-card relative flex h-screen w-full flex-col p-5 md:mt-10 md:h-fit md:w-[400px]">
           <form onSubmit={handleLogin}>
-            <Input
-              className="input"
-              placeholder="Nome"
-              value={name}
-              onChange={(e) => setName(e.value)}
-            />
-            <Input
-              className="input"
-              placeholder="E-mail"
-              value={email}
-              onChange={(e) => setEmail(e.value)}
-            />
-            <Input
-              className="input"
-              placeholder="Senha"
-              value={password}
-              onChange={(e) => setPassword(e.value)}
-              type="password"
-            />
+            <Input className="input" placeholder="Nome" value={name} onChange={(e) => setName(e.value)} />
+            <Input className="input" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.value)} />
+            <Input className="input" placeholder="Senha" value={password} onChange={(e) => setPassword(e.value)} type="password" />
             <Input
               className="input"
               placeholder="Confirme a Senha"
@@ -67,7 +51,7 @@ const LoginPage: NextPage = () => {
             </Button>
 
             <Link href="login">
-              <Button type="secondary" className="w-full">
+              <Button type="white" className="w-full">
                 Voltar
               </Button>
             </Link>

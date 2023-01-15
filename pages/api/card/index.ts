@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getUserId } from '../jwtMiddleware';
-import { createCard, getCards } from '../../../lib/card';
+import { createCard, deleteCard, getCards } from '../../../lib/card';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {

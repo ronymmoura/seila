@@ -47,11 +47,7 @@ export const NewCardModal: React.FC<IProps> = ({ onSave, onCancel }) => {
 
         <div className="my-2">
           <label>Número</label>
-          <input
-            className="input"
-            value={CardNumber}
-            onChange={(e) => setCardNumber(e.target.value)}
-          />
+          <input className="input" value={CardNumber} onChange={(e) => setCardNumber(e.target.value)} />
         </div>
 
         <div className="my-2">
@@ -61,22 +57,12 @@ export const NewCardModal: React.FC<IProps> = ({ onSave, onCancel }) => {
 
         <div className="my-2">
           <label>Data Validade</label>
-          <Input
-            type="date"
-            className="input"
-            value={CardDueDate}
-            onChange={(e) => setCardDueDate(e.value)}
-          />
+          <Input type="date" className="input" value={CardDueDate} onChange={(e) => setCardDueDate(e.formattedValue)} />
         </div>
 
         <div className="my-2">
           <label>Dia Fechamento</label>
-          <Input
-            max={31}
-            className="input"
-            value={CardClosingDate}
-            onChange={(e) => setCardClosingDate(+e.value)}
-          />
+          <Input max={31} className="input" value={CardClosingDate} onChange={(e) => setCardClosingDate(+e.value)} />
         </div>
 
         <Button submit onClick={handleSaveCard}>

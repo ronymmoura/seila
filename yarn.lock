@@ -7,10 +7,10 @@
   resolved "https://registry.yarnpkg.com/@heroicons/react/-/react-1.0.6.tgz#35dd26987228b39ef2316db3b1245c42eb19e324"
   integrity sha512-JJCXydOFWMDpCP4q13iEplA503MQO3xLoZiKum+955ZCtHINWnx26CUxVxxFQu/uLb4LW3ge15ZpzIkXKkJ8oQ==
 
-"@kamalion/ui@^0.0.21":
-  version "0.0.21"
-  resolved "https://registry.yarnpkg.com/@kamalion/ui/-/ui-0.0.21.tgz#1c49bcc55c510f8824709e65f1c4d323279c7c9e"
-  integrity sha512-5tbSDykO9rYSvWbIvXhaxzvJVrcZbPOkIZMl8RH1BYoNHP9NuXqxbIWuleyvv4cxmYJ2PpjWHN9DGfiwLuFRbA==
+"@kamalion/ui@^0.0.22":
+  version "0.0.22"
+  resolved "https://registry.yarnpkg.com/@kamalion/ui/-/ui-0.0.22.tgz#a20507106a8a4d60ef2aea19b23d6dc996eb572a"
+  integrity sha512-9onHkmYmN8lIfWkwuyV1zuN8izLWb0Va7hAJRgViQE36BVTqBbHqYgVd2kHAdosm6wAZIDtpglcCb494I+FNXQ==
   dependencies:
     react "^17.0.2"
     react-dom "^17.0.2"

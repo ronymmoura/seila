@@ -5,13 +5,7 @@ import { prisma } from '../../db';
 export async function getPurchasesByCardId(cardId: number) {
   let purchases = await prisma.purchase.findMany({
     where: { AND: { cardId } },
-    include: { installments: {} }
-  });
-
-  purchases = purchases.filter((purchase) => {
-    if (purchase.numberOfInstallments > 0) return purchase.paidInstallments! < purchase.numberOfInstallments! || purchase.date === new Date();
-
-    return purchase;
+    include: { installments: { orderBy: { paymentDate: 'asc' } } }
   });
 
   return purchases;
@@ -19,7 +13,15 @@ export async function getPurchasesByCardId(cardId: number) {
 
 export async function getPurchasesByCardIdMonth(cardId: number, date: Date) {
   return await prisma.purchase.findMany({
-    where: { AND: { cardId, date: { gte: startOfMonth(date), lte: endOfMonth(date) } } }
+    where: {
+      AND: {
+        cardId,
+        date: {
+          gte: startOfMonth(date),
+          lte: endOfMonth(date)
+        }
+      }
+    }
   });
 }
 

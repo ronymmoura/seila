@@ -13,10 +13,11 @@ const LoginPage: NextPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
 
   const handleLogin = async (e: any) => {
     e.preventDefault();
+    setError(null);
 
     try {
       const { accessToken } = await api<any>('/api/user/login', 'POST', { email, password });
@@ -35,19 +36,8 @@ const LoginPage: NextPage = () => {
       <div className="relative flex h-screen flex-col items-center">
         <div className="bg-card relative flex h-screen w-screen flex-col p-5 md:mt-10 md:h-fit lg:w-[400px]">
           <form onSubmit={handleLogin}>
-            <Input
-              className="input"
-              placeholder="E-mail"
-              value={email}
-              onChange={(e) => setEmail(e.value)}
-            />
-            <Input
-              className="input"
-              placeholder="Senha"
-              value={password}
-              onChange={(e) => setPassword(e.value)}
-              type="password"
-            />
+            <Input className="input" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.value)} />
+            <Input className="input" placeholder="Senha" value={password} onChange={(e) => setPassword(e.value)} type="password" />
 
             <Alert type="danger">{error}</Alert>
 
