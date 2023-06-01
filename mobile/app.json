@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "seila-mobile",
-    "slug": "seila-mobile",
+    "name": "Seila",
+    "slug": "seila",
+    "scheme": "com.ronymmoura.seila",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -18,16 +19,23 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "bundleIdentifier": "com.ronymmoura.seila"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.ronymmoura.seila"
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
+    "extra": {
+      "eas": {
+        "projectId": "73598574-c59a-4359-b323-99e107da5177"
+      }
     }
   }
 }
