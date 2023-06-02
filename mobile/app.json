@@ -13,16 +13,14 @@
       "backgroundColor": "#ffffff"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/73598574-c59a-4359-b323-99e107da5177"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true,
-      "config": {
-        "usesNonExemptEncryption": false
-      },
       "bundleIdentifier": "com.ronymmoura.seila"
     },
     "android": {
@@ -36,6 +34,9 @@
       "eas": {
         "projectId": "73598574-c59a-4359-b323-99e107da5177"
       }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
     }
   }
 }
