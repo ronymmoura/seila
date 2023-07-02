@@ -1,4 +1,4 @@
-import { ItemsRepository } from "@/lib/db/repositories";
+import { ItemHistoryRepository } from "@/lib/db/repositories";
 
 export async function DELETE(
   request: Request,
@@ -8,7 +8,7 @@ export async function DELETE(
     params: { id: number };
   }
 ) {
-  await new ItemsRepository().delete(+params.id);
+  await new ItemHistoryRepository().delete(+params.id);
 
   return new Response("Deletado!");
 }

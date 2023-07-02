@@ -1,46 +1,68 @@
-import { Item } from "@prisma/client";
+import { Item, ItemHistory, Prisma } from "@prisma/client";
 import { prisma } from "../prisma";
+import { ItemHistoryRepository } from "./ItemHistoryRepository";
 
-export const ItemsRepository = {
-  async get(id: string) {
+export class ItemsRepository {
+  public async get(id: number) {
     const category = await prisma.item.findUniqueOrThrow({
       where: { id },
     });
 
     return category;
-  },
+  }
 
-  async list() {
+  public async list() {
     const Items = await prisma.item.findMany({
       orderBy: {
         name: "asc",
       },
       include: {
-        ItemHistory: true,
+        itemHistory: {
+          include: {
+            item: true,
+          },
+        },
       },
     });
 
     return Items;
-  },
+  }
 
-  async create(data: Item) {
-    const category = await prisma.item.create({ data });
+  public async create(data: Item) {
+    data.name = data.name.toUpperCase();
 
-    return category;
-  },
+    let existingItem = await prisma.item.findFirst({
+      where: { name: data.name },
+    });
 
-  async update(data: Item) {
+    if (!existingItem) {
+      existingItem = await prisma.item.create({ data });
+    }
+
+    new ItemHistoryRepository().create({
+      monthGroceriesId: data.monthGroceriesId,
+      brand: "",
+      quantity: 0,
+      itemId: existingItem.id,
+      value: new Prisma.Decimal(0),
+    } as ItemHistory);
+  }
+
+  public async update(data: Item) {
+    data.name = data.name.toUpperCase();
+
     const category = await prisma.item.update({
       data,
       where: { id: data.id },
     });
 
     return category;
-  },
+  }
 
-  async delete(id: string) {
+  public async delete(id: number) {
+    await prisma.itemHistory.deleteMany({ where: { itemId: id } });
     await prisma.item.delete({
       where: { id },
     });
-  },
-};
+  }
+}

@@ -1,28 +1,18 @@
-import {
-  ItemHistoryRepository,
-  MonthGroceriesRepository,
-} from "@/repositories";
+import { ItemHistoryRepository } from "@/repositories";
 import { ItemHistory } from "@prisma/client";
 
-export async function POST(request: Request) {
-  const { brand, itemId, value, quantity } = await request.json();
+export async function PUT(request: Request) {
+  const { id, brand, itemId, value, quantity, monthGroceriesId } =
+    await request.json();
 
-  const monthGroceries = await MonthGroceriesRepository.list();
-
-  if (quantity > 0) {
-    await ItemHistoryRepository.create({
-      brand,
-      value,
-      quantity,
-      itemId,
-      monthGroceriesId: monthGroceries[0].id,
-    } as ItemHistory);
-  } else {
-    await ItemHistoryRepository.deleteByItemIdMonthGroceriesId(
-      itemId,
-      monthGroceries[0].id
-    );
-  }
+  await new ItemHistoryRepository().update({
+    id,
+    brand,
+    value,
+    quantity,
+    itemId,
+    monthGroceriesId,
+  } as ItemHistory);
 
   return new Response("Salvo!");
 }

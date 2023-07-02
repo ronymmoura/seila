@@ -1,16 +1,16 @@
 import { Category } from "@prisma/client";
 import { prisma } from "../prisma";
 
-export const CategoriesRepository = {
-  async get(id: string) {
+export class CategoriesRepository {
+  public async get(id: number) {
     const category = await prisma.category.findUniqueOrThrow({
       where: { id },
     });
 
     return category;
-  },
+  }
 
-  async list() {
+  public async list() {
     const categories = await prisma.category.findMany({
       orderBy: {
         name: "asc",
@@ -18,26 +18,26 @@ export const CategoriesRepository = {
     });
 
     return categories;
-  },
+  }
 
-  async create(data: Category) {
+  public async create(data: Category) {
     const category = await prisma.category.create({ data });
 
     return category;
-  },
+  }
 
-  async update(data: Category) {
+  public async update(data: Category) {
     const category = await prisma.category.update({
       data,
       where: { id: data.id },
     });
 
     return category;
-  },
+  }
 
-  async delete(id: string) {
+  public async delete(id: number) {
     await prisma.category.delete({
       where: { id },
     });
-  },
-};
+  }
+}

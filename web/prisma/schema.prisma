@@ -4,14 +4,12 @@ generator client {
 }
 
 datasource db {
-  provider          = "postgresql"
-  url               = env("POSTGRES_PRISMA_URL") // uses connection pooling
-  directUrl         = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
-  shadowDatabaseUrl = env("POSTGRES_URL_NON_POOLING") // used for migrations
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Category {
-  id   String @id @default(uuid())
+  id   Int    @id @default(autoincrement())
   name String
   icon String
 
@@ -19,30 +17,30 @@ model Category {
 }
 
 model Item {
-  id               String @id @default(uuid())
+  id               Int    @id @default(autoincrement())
   name             String
-  categoryId       String
-  monthGroceriesId String
+  categoryId       Int
+  monthGroceriesId Int
 
   category    Category      @relation(fields: [categoryId], references: [id])
-  ItemHistory ItemHistory[]
+  itemHistory ItemHistory[]
 }
 
 model MonthGroceries {
-  id    String   @id @default(uuid())
+  id    Int      @id @default(autoincrement())
   month DateTime
 
-  ItemHistory ItemHistory[]
+  itemHistory ItemHistory[]
 }
 
 model ItemHistory {
-  id       String  @id @default(uuid())
-  value    Decimal
+  id       Int     @id @default(autoincrement())
+  value    Decimal @db.Decimal(10, 2)
   quantity Int
   brand    String
 
-  monthGroceriesId String
-  itemId           String
+  monthGroceriesId Int
+  itemId           Int
 
   monthGrocery MonthGroceries @relation(fields: [monthGroceriesId], references: [id])
   item         Item           @relation(fields: [itemId], references: [id])

@@ -1,43 +1,63 @@
 import { MonthGroceries } from "@prisma/client";
 import { prisma } from "../prisma";
 
-export const MonthGroceriesRepository = {
-  async get(id: string) {
+export class MonthGroceriesRepository {
+  public async get(id: number) {
     const item = await prisma.monthGroceries.findUniqueOrThrow({
       where: { id },
     });
 
     return item;
-  },
+  }
 
-  async list() {
+  public async list() {
     const items = await prisma.monthGroceries.findMany({
       orderBy: {
         month: "desc",
       },
+      include: {
+        itemHistory: true,
+      },
     });
 
     return items;
-  },
+  }
 
-  async create(data: MonthGroceries) {
+  public async getLast() {
+    const items = await prisma.monthGroceries.findFirstOrThrow({
+      orderBy: {
+        month: "desc",
+      },
+      include: {
+        itemHistory: {
+          include: {
+            item: true,
+          },
+        },
+      },
+    });
+
+    return items;
+  }
+
+  public async create(data: MonthGroceries) {
     const category = await prisma.monthGroceries.create({ data });
 
     return category;
-  },
+  }
 
-  async update(data: MonthGroceries) {
+  public async update(data: MonthGroceries) {
     const category = await prisma.monthGroceries.update({
       data,
       where: { id: data.id },
     });
 
     return category;
-  },
+  }
 
-  async delete(id: string) {
+  public async delete(id: number) {
     await prisma.monthGroceries.delete({
       where: { id },
     });
-  },
-};
+  }
+}

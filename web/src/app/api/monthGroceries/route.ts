@@ -2,7 +2,19 @@ import { MonthGroceriesRepository } from "@/repositories";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const months = await MonthGroceriesRepository.list();
+  const months = await new MonthGroceriesRepository().list();
 
-  return NextResponse.json(months[0]);
+  const parsedMonths = months.map((month) => {
+    const total = month.itemHistory.reduce(
+      (sum, current) => sum + Number(current.value),
+      0
+    );
+
+    return {
+      ...month,
+      total,
+    };
+  });
+
+  return NextResponse.json(parsedMonths[0]);
 }
