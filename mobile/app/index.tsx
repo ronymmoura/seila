@@ -18,6 +18,7 @@ import { ItemsService } from "../src/services/ItemsService";
 import { LoadingComponent } from "../src/components/LoadingComponent";
 import { ItemHistoryService } from "../src/services/ItemHistoryService";
 import { MonthGroceriesService } from "../src/services/MonthGroceriesService";
+import { format } from "date-fns";
 
 type Group = {
   categoryId: string;
@@ -25,6 +26,8 @@ type Group = {
 };
 
 export default function App() {
+  const [MonthGroceriesId, setMonthGroceriesId] = useState(null);
+
   const [ItemName, setItemName] = useState("");
   const [CategoryId, setCategoryId] = useState("");
   const [ItemHistoryId, setItemHistoryId] = useState(null);
@@ -40,12 +43,24 @@ export default function App() {
   );
 
   const {
-    data: monthGroceries,
+    data: monthGroceriesList,
     isLoading: loadingItems,
     refetch: refetchItems,
-  } = useService(() => MonthGroceriesService.getLast());
+  } = useService(() => MonthGroceriesService.list());
+
+  console.log({ monthGroceriesList });
+
+  const monthGroceries = monthGroceriesList?.find(
+    (x) => x.id === MonthGroceriesId
+  );
 
   const category = categories?.filter((x) => x.id === CategoryId)[0];
+
+  useEffect(() => {
+    if (!MonthGroceriesId) {
+      setMonthGroceriesId(monthGroceriesList?.[0].id);
+    }
+  }, [monthGroceriesList]);
 
   useEffect(() => {
     if (categories?.length > 0 && !CategoryId) {
@@ -212,6 +227,20 @@ export default function App() {
 
       {/* List */}
       <View>
+        <View className="flex-row justify-evenly ">
+          {monthGroceriesList?.map((month) => (
+            <TouchableOpacity
+              className={`${
+                month.id === MonthGroceriesId ? "bg-purple-400" : "bg-slate-400"
+              } px-4 py-2`}
+              onPress={() => setMonthGroceriesId(month.id)}
+            >
+              <Text className="text-lg text-white">
+                {format(new Date(month.month), "MM/yyyy")}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
         <View className="flex-row p-4">
           <Text className="flex-1 items-center text-4xl text-white">
             R${" "}

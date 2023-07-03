@@ -17,8 +17,8 @@ export async function callAPI<T>({
     // const token = localStorage.getItem("token");
 
     const response = await axios({
-      baseURL: "https://seila-ronymmoura.vercel.app/api",
-      // baseURL: "http://192.168.1.2:3000/api",
+      // baseURL: "https://seila-ronymmoura.vercel.app/api",
+      baseURL: "http://192.168.1.2:3000/api",
       method,
       url: path,
       headers: {
