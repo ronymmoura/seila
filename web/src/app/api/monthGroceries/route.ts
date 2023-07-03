@@ -8,7 +8,7 @@ export async function GET() {
 
   const parsedMonths = months.map((month) => {
     const total = month.itemHistory.reduce(
-      (sum, current) => sum + Number(current.value),
+      (sum, current) => sum + Number(current.value) * Number(current.quantity),
       0
     );
 
@@ -18,5 +18,5 @@ export async function GET() {
     };
   });
 
-  return NextResponse.json(parsedMonths[0]);
+  return NextResponse.json(parsedMonths);
 }
