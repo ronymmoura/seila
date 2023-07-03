@@ -241,6 +241,7 @@ export default function App() {
             </TouchableOpacity>
           ))}
         </View>
+
         <View className="flex-row p-4">
           <Text className="flex-1 items-center text-4xl text-white">
             R${" "}
@@ -311,6 +312,8 @@ export default function App() {
               );
             })}
           </View>
+
+          <View className="h-[400px]"></View>
         </ScrollView>
       </View>
 
