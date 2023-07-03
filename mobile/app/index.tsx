@@ -13,20 +13,21 @@ import React, { useEffect, useState } from "react";
 import { TextInputMask } from "react-native-masked-text";
 import { useService } from "../src/hooks";
 import { CategoriesService } from "../src/services";
-import { Item } from "../src/types";
+import { ItemHistory } from "../src/types";
 import { ItemsService } from "../src/services/ItemsService";
 import { LoadingComponent } from "../src/components/LoadingComponent";
 import { ItemHistoryService } from "../src/services/ItemHistoryService";
+import { MonthGroceriesService } from "../src/services/MonthGroceriesService";
 
 type Group = {
   categoryId: string;
-  items: Item[];
+  itemsHistory: ItemHistory[];
 };
 
 export default function App() {
   const [ItemName, setItemName] = useState("");
   const [CategoryId, setCategoryId] = useState("");
-  const [ItemId, setItemId] = useState(null);
+  const [ItemHistoryId, setItemHistoryId] = useState(null);
 
   const [CategoryListShown, setCategoryListShown] = useState(false);
 
@@ -39,10 +40,10 @@ export default function App() {
   );
 
   const {
-    data: items,
+    data: monthGroceries,
     isLoading: loadingItems,
     refetch: refetchItems,
-  } = useService(() => ItemsService.list());
+  } = useService(() => MonthGroceriesService.getLast());
 
   const category = categories?.filter((x) => x.id === CategoryId)[0];
 
@@ -60,54 +61,68 @@ export default function App() {
     );
   }
 
-  const groups = items?.reduce<Group[]>((list: Group[], current) => {
-    if (list.some((x) => x.categoryId === current.categoryId)) {
-      list
-        .filter((x) => x.categoryId === current.categoryId)[0]
-        .items.push(current);
-    } else {
-      list.push({
-        categoryId: current.categoryId,
-        items: [current],
-      });
-    }
+  const itemHistory = monthGroceries?.itemHistory.find(
+    (x) => x.id === ItemHistoryId
+  );
 
-    return list;
-  }, []);
+  const groups = monthGroceries?.itemHistory?.reduce<Group[]>(
+    (list: Group[], current) => {
+      if (list.some((x) => x.categoryId === current.item.categoryId)) {
+        list
+          .filter((x) => x.categoryId === current.item.categoryId)[0]
+          .itemsHistory.push(current);
+      } else {
+        list.push({
+          categoryId: current.item.categoryId,
+          itemsHistory: [current],
+        });
+      }
+
+      return list;
+    },
+    []
+  );
 
   async function handleAdd() {
-    if (!ItemName) {
-      Alert.alert("Erro", "Por favor, insira o nome do item");
-      return;
+    try {
+      if (!ItemName) {
+        Alert.alert("Erro", "Por favor, insira o nome do item");
+        return;
+      }
+
+      await ItemsService.create({
+        name: ItemName,
+        categoryId: CategoryId,
+        monthGroceriesId: monthGroceries.id,
+      });
+
+      await refetchItems();
+      setItemName("");
+    } catch (e) {
+      console.log(e.response ? e.response.data : e);
     }
-
-    await ItemsService.create({
-      name: ItemName,
-      categoryId: CategoryId,
-    });
-
-    await refetchItems();
-    setItemName("");
   }
 
-  function handleSelectItem(item: Item) {
-    setItemId(item.id);
+  async function handleRefresh() {
+    await refetchItems();
+  }
 
-    if (item?.ItemHistory?.length > 0) {
-      console.log(item?.ItemHistory[0].value);
+  function handleSelectItem(itemHistory: ItemHistory) {
+    setItemHistoryId(itemHistory.id);
 
-      setQuantity(item?.ItemHistory[0].quantity);
-      setValue(+item?.ItemHistory[0].value);
-      setBrand(item?.ItemHistory[0].brand);
-    }
+    setQuantity(itemHistory.quantity);
+    setValue(+itemHistory.value);
+    setBrand(itemHistory.brand);
   }
 
   async function handleSaveItem() {
-    await ItemHistoryService.create({
-      itemId: ItemId,
+    await ItemHistoryService.update({
+      id: ItemHistoryId,
+      brand: Brand,
       quantity: Quantity,
       value: Value,
-      brand: Brand,
+      itemId: itemHistory.itemId,
+      monthGroceriesId: monthGroceries.id,
     });
 
     await refetchItems();
@@ -116,7 +131,7 @@ export default function App() {
   }
 
   async function handleDeleteItem() {
-    await ItemsService.delete(ItemId);
+    await ItemHistoryService.delete(ItemHistoryId);
 
     await refetchItems();
 
@@ -127,7 +142,7 @@ export default function App() {
     setQuantity(1);
     setValue(0);
     setBrand("");
-    setItemId(null);
+    setItemHistoryId(null);
   }
 
   return (
@@ -196,61 +211,82 @@ export default function App() {
       </View>
 
       {/* List */}
-      <ScrollView className="z-10">
-        <View className="space-y-4 p-4">
-          {groups?.map((categoryItem) => {
-            const category = categories.filter(
-              (x) => x.id === categoryItem.categoryId
-            )[0];
+      <View>
+        <View className="flex-row p-4">
+          <Text className="flex-1 items-center text-4xl text-white">
+            R${" "}
+            {(monthGroceries?.total || 0).toLocaleString("pt-Br", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </Text>
 
-            return (
-              <View
-                key={categoryItem.categoryId}
-                className="space-y-3 rounded-md bg-white p-3"
-              >
-                <View className="left-1 flex-row items-center space-x-3">
-                  <FontAwesome5
-                    name={category.icon}
-                    size={20}
-                    color="#8257e5"
-                  />
-
-                  <Text className="font-body text-lg">{category.name}</Text>
-                </View>
-
-                <View>
-                  {categoryItem.items.map((item) => (
-                    <TouchableOpacity
-                      key={item.id}
-                      className="flex-row items-center space-x-3 p-2"
-                      onPress={() => handleSelectItem(item)}
-                    >
-                      {item?.ItemHistory?.length === 0 && (
-                        <View className="h-7 w-7 rounded-md border-2 border-purple-500"></View>
-                      )}
-
-                      {item?.ItemHistory?.length > 0 && (
-                        <View className="h-7 w-7 items-center justify-center rounded-md border-2 border-[#04c058]">
-                          <FontAwesome5
-                            name="check"
-                            size={16}
-                            color="#04c058"
-                          />
-                        </View>
-                      )}
-
-                      <Text className="font-body">{item.name}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-            );
-          })}
+          <TouchableOpacity
+            className="items-center justify-center rounded-md bg-purple-400 p-2"
+            onPress={handleRefresh}
+          >
+            <Feather name="refresh-cw" size={20} color="white" />
+          </TouchableOpacity>
         </View>
-      </ScrollView>
+
+        <ScrollView className="z-10">
+          <View className="space-y-4 p-4">
+            {groups?.map((categoryItem) => {
+              const category = categories.filter(
+                (x) => x.id === categoryItem.categoryId
+              )[0];
+
+              return (
+                <View
+                  key={categoryItem.categoryId}
+                  className="space-y-3 rounded-md bg-white p-3"
+                >
+                  <View className="left-1 flex-row items-center space-x-3">
+                    <FontAwesome5
+                      name={category.icon}
+                      size={20}
+                      color="#8257e5"
+                    />
+
+                    <Text className="font-body text-lg">{category.name}</Text>
+                  </View>
+
+                  <View>
+                    {categoryItem?.itemsHistory?.map((itemsHistory) => (
+                      <TouchableOpacity
+                        key={itemsHistory.id}
+                        className="flex-row items-center space-x-3 p-2"
+                        onPress={() => handleSelectItem(itemsHistory)}
+                      >
+                        {itemsHistory.quantity === 0 && (
+                          <View className="h-7 w-7 rounded-md border-2 border-purple-500"></View>
+                        )}
+
+                        {itemsHistory.quantity > 0 && (
+                          <View className="h-7 w-7 items-center justify-center rounded-md border-2 border-[#04c058]">
+                            <FontAwesome5
+                              name="check"
+                              size={16}
+                              color="#04c058"
+                            />
+                          </View>
+                        )}
+
+                        <Text className="font-body">
+                          {itemsHistory.item.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        </ScrollView>
+      </View>
 
       {/* Modal */}
-      {ItemId && (
+      {ItemHistoryId && (
         <>
           <View className="absolute -top-3 bottom-0 left-0 right-0 z-40 bg-black p-2 opacity-40"></View>
 

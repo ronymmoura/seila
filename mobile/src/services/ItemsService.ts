@@ -14,7 +14,7 @@ export const ItemsService = {
     });
   },
 
-  async delete(id: string) {
+  async delete(id: number) {
     return await callAPI({
       path: `/items/${id}`,
       method: "DELETE",
