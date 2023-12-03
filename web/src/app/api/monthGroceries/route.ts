@@ -18,5 +18,7 @@ export async function GET() {
     };
   });
 
+  console.log({ parsedMonths });
+
   return NextResponse.json(parsedMonths);
 }

@@ -16,7 +16,11 @@ export class MonthGroceriesRepository {
         month: "desc",
       },
       include: {
-        itemHistory: true,
+        itemHistory: {
+          include: {
+            item: true,
+          },
+        },
       },
     });
 
