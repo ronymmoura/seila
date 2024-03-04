@@ -2,19 +2,15 @@
   "expo": {
     "name": "Seila",
     "slug": "seila",
-    "scheme": "com.ronymmoura.seila",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "icon": "./assets/images/icon.png",
+    "scheme": "com.ronymmoura.seila",
+    "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
-    },
-    "updates": {
-      "fallbackToCacheTimeout": 0,
-      "url": "https://u.expo.dev/73598574-c59a-4359-b323-99e107da5177"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -25,18 +21,16 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
       },
       "package": "com.ronymmoura.seila"
     },
-    "extra": {
-      "eas": {
-        "projectId": "73598574-c59a-4359-b323-99e107da5177"
-      }
-    },
-    "runtimeVersion": {
-      "policy": "sdkVersion"
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
     }
   }
 }

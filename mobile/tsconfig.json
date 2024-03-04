@@ -1,10 +1,17 @@
 {
-  "compilerOptions": {
-    "types": [
-      "nativewind/types"
-    ]
-  }
-  ,
   "extends": "expo/tsconfig.base",
-  "exclude": ["*.d.ts"]
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ]
 }

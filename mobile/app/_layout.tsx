@@ -1,40 +1,58 @@
-import { View } from "react-native";
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { useFonts } from 'expo-font';
+import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
 
-import {
-  useFonts,
-  Poppins_400Regular,
-  Poppins_700Bold,
-} from "@expo-google-fonts/poppins";
+import { useColorScheme } from '@/components/useColorScheme';
 
-import { SplashScreen, Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
+export {
+  // Catch any errors thrown by the Layout component.
+  ErrorBoundary,
+} from 'expo-router';
 
-export default function Layout() {
-  const [hasLoadedFonts] = useFonts({
-    Poppins_400Regular,
-    Poppins_700Bold,
+export const unstable_settings = {
+  // Ensure that reloading on `/modal` keeps a back button present.
+  initialRouteName: '(tabs)',
+};
+
+// Prevent the splash screen from auto-hiding before asset loading is complete.
+SplashScreen.preventAutoHideAsync();
+
+export default function RootLayout() {
+  const [loaded, error] = useFonts({
+    //SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    ...FontAwesome.font,
   });
 
-  if (!hasLoadedFonts) {
-    return <SplashScreen />;
+  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
+  useEffect(() => {
+    if (error) throw error;
+  }, [error]);
+
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded]);
+
+  if (!loaded) {
+    return null;
   }
 
+  return <RootLayoutNav />;
+}
+
+function RootLayoutNav() {
+  const colorScheme = useColorScheme();
+
   return (
-    <View className="relative flex-1 bg-[#25262B]">
-      <StatusBar style="light" translucent />
-
-      <View className="absolute -right-[150px] -top-[150px] h-[300px] w-[300px] rounded-full bg-purple-500 opacity-90" />
-
-      <View className="absolute left-[50px] top-[200px] h-[100px] w-[100px] rounded-xl bg-black opacity-10" />
-      <View className="absolute bottom-[200px] right-[50px] h-[100px] w-[100px] rounded-xl bg-black opacity-10" />
-
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: "transparent" },
-          animation: "fade",
-        }}
-      />
-    </View>
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+      </Stack>
+    </ThemeProvider>
   );
 }
