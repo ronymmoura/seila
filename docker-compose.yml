@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    volumes:
+      - data:/var/lib/postgresql/data
+    networks:
+      - seilanet
+    environment:
+      POSTGRES_DB: seila
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+
+  # migrate:
+  #   image: migrate/migrate
+  #   networks:
+  #     - seilanet
+  #   volumes:
+  #     - ./internal/db/migrations:/app/internal/db/migrations
+  #   command: ["-path", "/app/internal/db/migrations", "-database",  "postgres://kamalion:pass@postgres:5432/seila?sslmode=disable", "up"]
+  #   links: 
+  #     - postgres
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile-deploy
+    ports:
+      - "3000:3000"
+    networks:
+      - seilanet
+    links:
+      - postgres
+      #- migrate
+    command: ["/app/main"]
+
+  app-dev:
+    build:
+      dockerfile: Dockerfile-dev
+      context: ./
+    volumes:
+      - ./:/app
+    networks:
+      - seilanet
+    links:
+      - postgres
+      #- migrate
+    ports:
+      - 3000:3000
+
+volumes:
+  data:
+
+networks:
+  seilanet:
+    driver: bridge
